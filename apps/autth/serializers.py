@@ -14,12 +14,14 @@ from django.shortcuts import get_object_or_404
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
+
     password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+
+
     class Meta:
         model = User
         fields = ['email','name', 'password', 'password2','tc']
         extra_kwargs = {'password': {'write_only': True}}
-
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -32,7 +34,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
+  
   email = serializers.EmailField(max_length=255)
+
   class Meta:
     model = User
     fields = ['email', 'password']
@@ -43,9 +47,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
     model = User
     fields = ['id', 'email', 'name']
 
+
 class UserChangePasswordSerializer(serializers.Serializer):
+  
   password = serializers.CharField(max_length=255, style={'input_type':'password'}, write_only=True)
   password2 = serializers.CharField(max_length=255, style={'input_type':'password'}, write_only=True)
+
+
   class Meta:
     fields = ['password', 'password2']
 
@@ -53,15 +61,19 @@ class UserChangePasswordSerializer(serializers.Serializer):
     password = attrs.get('password')
     password2 = attrs.get('password2')
     user = self.context.get('user')
+
     if password != password2:
       raise serializers.ValidationError("Password and Confirm Password doesn't match")
+    
     user.set_password(password)
     user.save()
+
     return attrs
 
 
 
 class SendPasswordResetEmailSerializer(serializers.Serializer):
+
     email = serializers.EmailField(max_length=255)
     
     class Meta:
@@ -102,6 +114,7 @@ class SendPasswordResetEmailSerializer(serializers.Serializer):
         
         return attrs
 
+
 class UserPasswordResetSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=255, style={'input_type': 'password'}, write_only=True)
     password2 = serializers.CharField(max_length=255, style={'input_type': 'password'}, write_only=True)
@@ -130,42 +143,10 @@ class UserPasswordResetSerializer(serializers.Serializer):
 
 
 class EmailThread(threading.Thread):
+    
     def __init__(self, email):
         self.email = email
         threading.Thread.__init__(self)
     
     def run(self):
         self.email.send()
-
-
-
-"""
-from rest_framework import serializers
-from apps.autth.models import User
-
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('email', 'name', 'tc', 'password')
-
-class UserLoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('email', 'name', 'tc', 'created_at', 'updated_at')
-
-class UserChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField()
-    new_password = serializers.CharField()
-
-class SendPasswordResetEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-
-class UserPasswordResetSerializer(serializers.Serializer):
-    new_password = serializers.CharField()
-"""
-
-
